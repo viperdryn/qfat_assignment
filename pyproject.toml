@@ -1,0 +1,21 @@
+[project]
+name = "indmom"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Marcell Szegedi", email = "szegedi.marcell@gmail.com" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "matplotlib>=3.10.8",
+    "pandas>=3.0.0",
+    "ruff>=0.15.1",
+]
+
+[project.scripts]
+indmom = "indmom:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

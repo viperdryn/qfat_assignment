@@ -1,0 +1,74 @@
+# =========================
+# IDE / Editor files
+# =========================
+
+# VS Code
+.vscode/
+.history/
+
+# JetBrains IDEs (PyCharm, IntelliJ etc.)
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# General editor temp files
+*~
+*.swp
+*.swo
+
+# =========================
+# OS generated files
+# =========================
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# =========================
+# Python (common extras, useful if relevant)
+# =========================
+
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+.build/
+dist/
+.eggs/
+.venv/
+venv/
+env/
+
+# =========================
+# Excel / csv files
+# =========================
+
+*.xls
+*.xlsx
+*.xlsm
+*.xlsb
+*.xltx
+*.xltm
+*.csv
+
+# =========================
+# Figures
+# =========================
+
+*.png
+
+# =========================
+# Figures
+# =========================
+
+
