@@ -167,54 +167,47 @@ print("Annual Sharpe      :", sharpe_a)
 # 1.3 Loser Portfolio:
 ############################################################################
 
-import pandas as pd
-import numpy as np
+industry = pd.read_csv('/Users/konstantin/QFAT - Assignment 1 /qfat_assignment/data/industry.csv') ##change these to your directory where the data is stored
 
-# Load the average ranks:
-industry_ranks = pd.read_csv(data_path / "industry_avg_ranks.csv")
-industry_ranks.rename(columns={'Unnamed: 0': 'Industry', '0': 'Average Rank'}, inplace=True)
-industry_ranks = industry_ranks.sort_values(by='Average Rank', ascending=True, ignore_index=True)
+industry.rename(columns = {'mdate' : 'Date', 'MktRf' : 'Market Excess'}, inplace = True)
 
-# Load the average returns:
-average_return = pd.read_csv(data_path / "industry_avg_return.csv")
+industry['Date'] = pd.to_datetime(industry['Date'], format = '%Y%m')
 
-# Get the excess returns for each month:
-average_ex_return = average_return.copy()
-for i in range(len(average_ex_return.columns)-2):
-    average_ex_return.iloc[:, i+2] = average_ex_return.iloc[:, i+2].sub(average_ex_return.iloc[:, 1], axis=0)
+cols = industry.columns.difference(['Date'])
 
-# Get the loser portfolio:
-loser_portfolio = industry_ranks.loc[2:16, 'Industry'].to_list()    # the 15 industries with the worst average rank
-print(f"The industries in the loser portfolio are: {loser_portfolio}")
+for c in cols:
+    industry[c] = (industry[c].astype(str).str.replace('%', '').astype(float) / 100)
 
-############################################################################
-# Answer for the questions in 1.3:
-############################################################################
+industries = [c for c in industry.columns if c not in ['Date', 'Rf', 'Market Excess']]
 
-# only keep the average monthly return for the loser portfolio:
-average_ex_return = average_ex_return.drop(columns=[col for col in average_ex_return.columns if col not in loser_portfolio])
-average_ex_monthly_returns_monthly = average_ex_return.mean(axis=1)
-average_ex_monthly_return = average_ex_monthly_returns_monthly.mean()
-print(f"The average monthly return of the loser portfolio is: {average_ex_monthly_return:.5f}")
+# past 12-month average return, excluding current month (shift by 1)
 
-# What is the standard deviation of the monthly returns of the loser portfolio?
-average_ex_monthly_return_std = average_ex_monthly_returns_monthly.std()
-print(f"The standard deviation of the monthly returns of the loser portfolio is: {average_ex_monthly_return_std:.5f}")
+past12 = industry[industries].shift(1).rolling(12).mean()
 
-# What is the monthly Sharpe ratio of the loser portfolio?
-loser_sharpe_ratio = average_ex_monthly_return / average_ex_monthly_return_std
-print(f"The monthly Sharpe ratio of the loser portfolio is: {loser_sharpe_ratio:.2f}")
+rankings = past12.rank(axis = 1, method = "first")
 
-# What is the annual Sharpe ratio of the loser portfolio?
-loser_annual_sharpe_ratio = loser_sharpe_ratio * np.sqrt(12)
-print(f"The annual Sharpe ratio of the loser portfolio is: {loser_annual_sharpe_ratio:.2f}")
+loosers = rankings <= 15
 
-# What is the annualized Sharpe ratio of the overall market index?
-market_ex_monthly_return = average_ex_return.iloc[:, 1].mean()
-market_ex_monthly_return_std = average_ex_return.iloc[:, 1].std()
-market_sharpe_ratio = market_ex_monthly_return / market_ex_monthly_return_std
-market_annual_sharpe_ratio = market_sharpe_ratio * np.sqrt(12)
-print(f"The annual Sharpe ratio of the market index is: {market_annual_sharpe_ratio:.2f}")
+print(rankings)
+
+
+# loser portfolio total return each month (equal-weight across loosers)
+loosers_ret = industry[industries].where(loosers).mean(axis=1)
+
+# loser portfolio excess return
+loosers_excess = loosers_ret - industry['Rf']
+
+# stats 
+mean_excess = loosers_excess.mean()
+std_excess  = loosers_excess.std(ddof=1)
+sharpe_m    = mean_excess / std_excess
+sharpe_a    = sharpe_m * np.sqrt(12)
+
+print("Mean monthly excess:", mean_excess)
+print("Std monthly excess :", std_excess)
+print("Monthly Sharpe     :", sharpe_m)
+print("Annual Sharpe      :", sharpe_a)
+
 
 
 # =====================================================
